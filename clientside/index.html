@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>page</title>
+    <link href="css/style.min.css" rel="stylesheet"><!--  Introduce external CSS styles -->
+    <script type="text/javascript" src="./css/angular.min.js"></script>
+    <style>
+        .title {
+            font-size: 14px;
+            padding: 20px;
+        }
+
+        .title a {
+            margin-left: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="lyear-layout-web" ng-app="App" ng-controller="Ctrl">
+        <div class="lyear-layout-container">
+            <!--  Navigation link -->
+            <div class="title">
+                <a href="index.html">Home Page</a>
+                <a href="criteria.html">Fundraisers Page</a>
+                <a href="search.html">Details Page</a>
+                <a href="donation.html">Donation Page</a>
+                <a href="admin.html">Admin Page</a>
+            </div>
+            <div style="padding: 20px;text-align: center;font-size: 24px;color: #fff;">
+                Welcome to the charity fundraising website<!--  Welcome message -->
+            </div>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="">
+                            <div class="">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>FUNDRAISER_ID</th>
+                                            <th>ORGANIZER</th>
+                                            <th>CAPTION</th>
+                                            <th>TARGET_FUNDING</th>
+                                            <th>CURRENT_FUNDING</th>
+                                            <th>CITY</th>
+                                            <th>ACTIVE</th>
+                                            <th>CATEGORY_ID</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="item in list">
+                                            <td>{{item.FUNDRAISER_ID}}</td>
+                                            <td>{{item.ORGANIZER}}</td>
+                                            <td>{{item.CAPTION}}</td>
+                                            <td>{{item.TARGET_FUNDING}}</td>
+                                            <td>{{item.CURRENT_FUNDING}}</td>
+                                            <td>{{item.CITY}}</td>
+                                            <td>{{item.ACTIVE}}</td>
+                                            <td>{{item.CATEGORY_ID}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        //Page initialization function
+        var app = angular.module('App', []);
+        app.controller('Ctrl', function ($scope, $http) {
+            $http.get("http://localhost:9001/api/getFundraisersListActive?active=Active")
+                .success(function (response) {
+                    $scope.list = response;
+                    console.log($scope.list);
+                });
+        });
+    </script>
+</body>
+
+</html>

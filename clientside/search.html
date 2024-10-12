@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>home</title>
+    <meta name="author" content="yinqi">
+    <link href="css/style.min.css" rel="stylesheet">
+    <script type="text/javascript" src="./css/angular.min.js"></script>
+    <style>
+        .title {
+            font-size: 14px;
+            padding: 20px;
+        }
+
+        .title a {
+            margin-left: 50px;
+        }
+
+        .box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .box .form-group {
+            width: 50%;
+        }
+
+        .form-group {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="lyear-layout-web" ng-app="App" ng-controller="Ctrl">
+        <div class="lyear-layout-container">
+            <!--  Navigation link -->
+            <div class="title">
+                <a href="index.html">Home Page</a>
+                <a href="criteria.html">Fundraisers Page</a>
+                <a href="search.html">Details Page</a>
+                <a href="donation.html">Donation Page</a>
+                <a href="admin.html">Admin Page</a>
+            </div>
+            <div class="container-fluid">
+                <div style="display: flex;">
+                    <div class="box">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>FUNDRAISER_ID</th>
+                                    <th>DONATION_ID</th>
+                                    <th>DATE</th>
+                                    <th>AMOUNT</th>
+                                    <th>GIVER</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="item in list">
+                                    <td>{{item.FUNDRAISER_ID}}</td>
+                                    <td>{{item.DONATION_ID}}</td>
+                                    <td>{{item.DATE | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                                    <td>{{item.AMOUNT}}</td>
+                                    <td>{{item.GIVER}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="form-group col-md-12">
+                            <!--  Donation button -->
+                            <button type="button" ng-click="Donate()" style="margin: 25px 100px 0 0;">Donate</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var app = angular.module('App', []);
+        app.controller('Ctrl', function ($scope, $http) {
+            $scope.paraminit = location.search ? location.search.split('?') : ''
+            $http.get(`http://localhost:9001/api/getDonationsByFUNDRAISERID?FUNDRAISER_ID=${$scope.paraminit[1]}`)
+                .success(function (response) {
+                    $scope.list = response;
+                });
+            $scope.Donate = function () {
+                location.href = `./donation.html?${$scope.paraminit[1]}`
+            }
+        });
+    </script>
+</body>
+
+</html>
