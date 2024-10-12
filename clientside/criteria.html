@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>page1</title>
+    <link href="css/style.min.css" rel="stylesheet"><!--  Introduce external style sheets -->
+    <script type="text/javascript" src="./css/angular.min.js"></script>
+    <style>
+        .title {
+            font-size: 14px;
+            /*Set the font size for the title*/
+            padding: 20px;
+            /*Set title margin*/
+        }
+
+        .title a {
+            margin-left: 50px;
+            /*Set link interval*/
+        }
+    </style>
+</head>
+
+<body>
+    <div class="lyear-layout-web" ng-app="App" ng-controller="Ctrl">
+        <div class="lyear-layout-container">
+            <div class="title">
+                <!--  Navigation link -->
+                <a href="index.html">Home Page</a>
+                <a href="criteria.html">Fundraisers Page</a>
+                <a href="search.html">Details Page</a>
+                <a href="donation.html">Donation Page</a>
+                <a href="admin.html">Admin Page</a>
+            </div>
+            <div class="">
+                <div class="" style="display: flex;margin: 20px;">
+                    <!--  CATEGORY-ID dropdown selection box -->
+                    <div style="width: 40%;display: flex;width: 300px;align-items: center;">
+                        <label for="CATEGORY_ID">CATEGORY_ID:</label>
+                        <select style="width: 150px;" class="form-control" ng-model="CATEGORY_ID">
+                            <option ng-repeat="x in CATEGORY_IDs" value="{{x.CATEGORY_ID}}">{{x.NAME}}</option>
+                        </select>
+                    </div>
+
+                    <!--  CITY input box -->
+                    <div style="width: 40%;display: flex;width: 300px;align-items: center;">
+                        <label for="CITY">CITY:</label>
+                        <input type="text" class="form-control" ng-model="CITY" />
+                    </div>
+                    <div style="width: 40%;display: flex;width: 300px;align-items: center;">
+                        <label for="CITY">ACTIVE:</label>
+                        <input type="text" class="form-control" ng-model="Active" />
+                    </div>
+                    <!--  Query and Clear Button -->
+                    <div style="width: 40%;display: flex;width: 300px;align-items: center;">
+                        <button type="button" ng-click="Query()" style="background-color: #f00;">query</button>
+                        <button type="button" ng-click="Query()"
+                            style="background-color: #f00;margin-left: 10px;">Clear</button>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>FUNDRAISER_ID</th>
+                                <th>ORGANIZER</th>
+                                <th>CAPTION</th>
+                                <th>TARGET_FUNDING</th>
+                                <th>CURRENT_FUNDING</th>
+                                <th>CITY</th>
+                                <th>ACTIVE</th>
+                                <th>CATEGORY_ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in list">
+                                <td><a
+                                        ng-href="{{'./search.html?' + item.FUNDRAISER_ID}}">{{item.FUNDRAISER_ID}}</a>
+                                </td>
+                                <td>{{item.ORGANIZER}}</td>
+                                <td>{{item.CAPTION}}</td>
+                                <td>{{item.TARGET_FUNDING}}</td>
+                                <td>{{item.CURRENT_FUNDING}}</td>
+                                <td>{{item.CITY}}</td>
+                                <td>{{item.ACTIVE}}</td>
+                                <td>{{item.CATEGORY_ID}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="font-weight: bold;color: #f00;text-align: center;" id="note">
+                        {{note}}
+                        <!--  Used to display additional information or notifications -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var app = angular.module('App', []);
+        app.controller('Ctrl', function ($scope, $http) {
+            $scope.Active = ''
+            $scope.CITY = ''
+            $scope.CATEGORY_ID = 'All'
+            $http.get("http://localhost:9001/api/getCategoriesList")
+                .success(function (response) {
+                    $scope.CATEGORY_IDs = [{ CATEGORY_ID: 'All', NAME: 'All Category' }, ...response];
+                });
+            $scope.Query = function () {
+                if (!$scope.Active && !$scope.CITY && !$scope.CATEGORY_ID) {
+                    alert('must pick one or multiple criteria !')
+                    return
+                }
+                $http.get(`http://localhost:9001/api/getFundraisersListByCriteria?ACTIVE=${$scope.Active}&CITY=${$scope.CITY}&CATEGORY_ID=${$scope.CATEGORY_ID}`)
+                    .success(function (response) {
+                        if (response.length) {
+                            $scope.list = response;
+                            $scope.note = '';
+                        } else {
+                            $scope.list = [];
+                            $scope.note = 'no fundraisers are found';
+                        }
+                    });
+            }
+            $scope.Query()
+            $scope.Clear = function () {
+                $scope.FUNDRAISER_ID = ''
+                $scope.CITY = ''
+                $scope.CATEGORY_ID = ''
+            }
+        });
+    </script>
+</body>
+
+</html>

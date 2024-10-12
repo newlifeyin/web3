@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>home</title>
+    <meta name="author" content="yinqi">
+    <link href="css/style.min.css" rel="stylesheet">
+    <script type="text/javascript" src="./css/angular.min.js"></script>
+    <style>
+        .title {
+            font-size: 14px;
+            padding: 20px;
+        }
+
+        .title a {
+            margin-left: 50px;
+        }
+
+        .box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .box .form-group {
+            width: 50%;
+        }
+
+        .form-group {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="lyear-layout-web" ng-app="App" ng-controller="Ctrl">
+        <div class="lyear-layout-container">
+            <!--  Navigation link -->
+            <div class="title">
+                <a href="index.html">Home Page</a>
+                <a href="criteria.html">Fundraisers Page</a>
+                <a href="search.html">Details Page</a>
+                <a href="donation.html">Donation Page</a>
+                <a href="admin.html">Admin Page</a>
+            </div>
+            <div class="container-fluid">
+                <div style="display: flex;">
+                    <div class="box" style="width: 60%;">
+                        <!--  Display Fundraiser Information -->
+                        <div class="form-group col-md-12">
+                            <label>FUNDRAISER_ID:</label><span>{{param.FUNDRAISER_ID}}</span>
+                            <!--  Used to display fundraiser ID -->
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label>ORGANIZER:</label><span>{{param.ORGANIZER}}</span>
+                            <!--  Used to display organizer name -->
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label>CAPTION:</label><span>{{param.CAPTION}}</span>
+                            <!--  Used to display fundraising titles -->
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label>TARGET_FUNDING:</label><span>{{param.TARGET_FUNDING}}</span>
+                            <!--  Used to display the target fundraising amount -->
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label>CURRENT_FUNDING:</label><span>{{param.CURRENT_FUNDING}}</span>
+                            <!--  Used to display the current fundraising amount -->
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label>CITY:</label><span>{{param.CITY}}</span>
+                            <!--  Used to display cities -->
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label>ACTIVE:</label><span>{{param.ACTIVE}}</span>
+                            <!--  Used to display the status of fundraising activities -->
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label>CATEGORY_ID:</label><span>{{param.CATEGORY_ID}}</span>
+                            <!--  Used to display category ID -->
+                        </div>
+                        <div class="form-group col-md-12">
+                            <input type="text" ng-model="name" placeholder="donation name"><br>
+                            <br>
+                            <input type="text" ng-model="money" placeholder="donation money">
+                            <!--  Donation button -->
+                            <button type="button" ng-click="donation()" style="margin: 25px 100px 0 0;">Submit my
+                                donation</button>
+                        </div>
+                    </div>
+                    <div style="width: 40%;"><!--  Right image display area -->
+                        <img style="width: 300px;margin-top: 20px;" ng-src="{{img1}}" alt="">
+                        <img style="width: 300px;margin-top: 20px;" ng-src="{{img2}}" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var app = angular.module('App', []);
+        app.controller('Ctrl', function ($scope, $http) {
+            $scope.paraminit = location.search ? location.search.split('?') : ''
+
+            $http.get(`http://localhost:9001/api/getFundraisersListByFUNDRAISERID?FUNDRAISER_ID=${$scope.paraminit[1]}`)
+                .success(function (response) {
+                    $scope.param = response[0];
+                    $scope.img1 = './images/' + response[0].FUNDRAISER_ID + '1.jpg';
+                    $scope.img2 = './images/' + response[0].FUNDRAISER_ID + '2.jpg';
+                });
+            $scope.donation = function () {
+                if (!$scope.name) {
+                    alert('donation name is must')
+                    return;
+                }
+                if ($scope.money < 5) {
+                    alert('the minimum of donation is 5 AUD')
+                    return;
+                }
+                $http.post(`http://localhost:9001/api/addDonations`, {
+                    "DATE": new Date().getTime(),
+                    "AMOUNT": $scope.money,
+                    "name": $scope.name,
+                    "FUNDRAISER_ID": $scope.paraminit[1]
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .success(function (response) {
+                        alert(`感谢您向${$scope.paraminit[1]}捐款`)
+                        location.href = `./search.html?${$scope.paraminit[1]}`
+                    });
+            }
+        });
+
+    </script>
+</body>
+
+</html>
